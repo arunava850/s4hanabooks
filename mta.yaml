@@ -15,16 +15,34 @@ modules:
     path: srv
     parameters:
       memory: 1024M
+    properties:
+        ALLOW_MOCKED_AUTH_HEADER : true
     provides:
       - name: srv_api
         properties:
           url: ${default-url}
     requires:
+      - name: s4bookshop-dest
+      - name: s4bookshop-uaa
       - name: s4bookshop-hdi-container
         properties:
           JBP_CONFIG_RESOURCE_CONFIGURATION: '[tomcat/webapps/ROOT/META-INF/context.xml:
             {"service_name_for_DefaultDB" : "~{hdi-container-name}"}]'
 resources:
+  - name: s4bookshop-dest
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+  - name: s4bookshop-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      parameters:
+        config:
+            xsappname: 's4bookshop'
+            tenant-mode: dedicated
   - name: s4bookshop-hdi-container
     type: com.sap.xs.hdi-container
     properties:
